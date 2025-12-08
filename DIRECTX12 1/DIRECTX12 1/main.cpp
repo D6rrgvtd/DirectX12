@@ -2,11 +2,11 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <tchar.h>
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
 
 #ifdef _DEBUG
 #include <iostream>
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
 #endif
 
 void DebugOutputFormatString(const char* format, ...)
@@ -26,6 +26,11 @@ IDXGISwapChain4* _swapchain = nullptr;
 ID3D12CommandAllocator* _cmdAllocator = nullptr;
 ID3D12GraphicsCommandList* _cmdList = nullptr;
 ID3D12CommandQueue* _cmdQueue = nullptr;
+ID3D12Fence* _fence = nullptr;
+
+ID3D12DescriptorHeap* _rtvHeap = nullptr;
+UINT _rtvDescriptorSize = 0;
+ID3D12Resource* _renderTargets[2];
 
 const unsigned int window_width = 1280;
 const unsigned int window_height = 720;
@@ -43,10 +48,10 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 #ifdef _DEBUG
 int main()
 {
-    DebugOutputFormatString("Show window test.\n");
-    getchar();
+   
 
-    // ======== ウィンドウ作成 ========
+
+   
     WNDCLASSEX w = {};
     w.cbSize = sizeof(WNDCLASSEX);
     w.lpfnWndProc = WindowProcedure;
@@ -70,9 +75,7 @@ int main()
 
     ShowWindow(hwnd, SW_SHOW);
 
-    // ================================================
-    // ▼ ここから DirectX12 初期化
-    // ================================================
+
 
     HRESULT hr;
 
@@ -96,6 +99,54 @@ int main()
     hr = _dev->CreateCommandQueue(&qDesc, IID_PPV_ARGS(&_cmdQueue));
     if (FAILED(hr)) { MessageBoxA(0, "CmdQueue Error", "ERR", 0); return -1; }
 
+    // --- Swap Chain ---
+    DXGI_SWAP_CHAIN_DESC1 scDesc{};
+    scDesc.Width = window_width;
+    scDesc.Height = window_height;
+    scDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    scDesc.BufferCount = 2;
+    scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+
+    IDXGISwapChain1* swapchain1 = nullptr;
+    hr = _dxgiFactory->CreateSwapChainForHwnd(
+        _cmdQueue,
+        hwnd,
+        &scDesc,
+        nullptr,
+        nullptr,
+        &swapchain1
+    );
+    if (FAILED(hr)) return -1;
+
+    swapchain1->QueryInterface(IID_PPV_ARGS(&_swapchain));
+    swapchain1->Release();
+
+    // --- RTV Heap ---
+    D3D12_DESCRIPTOR_HEAP_DESC rtvDesc{};
+    rtvDesc.NumDescriptors = 2;
+    rtvDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    rtvDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+    hr = _dev->CreateDescriptorHeap(&rtvDesc, IID_PPV_ARGS(&_rtvHeap));
+    if (FAILED(hr)) return -1;
+
+    _rtvDescriptorSize =
+        _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle =
+        _rtvHeap->GetCPUDescriptorHandleForHeapStart();
+
+    for (UINT i = 0; i < 2; i++)
+    {
+        hr = _swapchain->GetBuffer(i, IID_PPV_ARGS(&_renderTargets[i]));
+        if (FAILED(hr)) return -1;
+
+        _dev->CreateRenderTargetView(_renderTargets[i], nullptr, rtvHandle);
+        
+        rtvHandle.ptr += _rtvDescriptorSize;
+
+    }
     // --- Command Allocator ---
     hr = _dev->CreateCommandAllocator(
         D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -115,12 +166,10 @@ int main()
 
     _cmdList->Close();
 
-    // ================================================
-    // ▲ DirectX12 初期化 ここまで
-    // ================================================
+    _dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
 
 
-    // ======== メッセージループ ========
+    
     MSG msg = {};
 
     while (true)
