@@ -47,26 +47,70 @@ float4 PS(PSInput input) : SV_TARGET { return float4(input.col,1); }
     D3DCompile(shaderCode, strlen(shaderCode), nullptr, nullptr, nullptr, "VS", "vs_5_0", 0, 0, &vsBlob, &err);
     D3DCompile(shaderCode, strlen(shaderCode), nullptr, nullptr, nullptr, "PS", "ps_5_0", 0, 0, &psBlob, &err);
 
-    // PSO
+    // --- PSO ---
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+    ZeroMemory(&psoDesc, sizeof(psoDesc));
+    // 入力レイアウト
     D3D12_INPUT_ELEMENT_DESC inputElements[] = {
         {"POSITION",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
         {"COLOR",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
     };
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-    psoDesc.InputLayout = { inputElements,_countof(inputElements) };
+
+    psoDesc.InputLayout = { inputElements, _countof(inputElements) };
+
+
+    // 入力レイアウト
+    psoDesc.InputLayout = { inputElements, _countof(inputElements) };
     psoDesc.pRootSignature = _rootSig;
     psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
     psoDesc.PS = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
+
+    // 三角形描画
     psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+    // --- RASTERIZER  ---
     psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
     psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    psoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+    psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+    psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+    psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+    psoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+    psoDesc.RasterizerState.DepthClipEnable = TRUE;
+    psoDesc.RasterizerState.MultisampleEnable = FALSE;
+    psoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+    psoDesc.RasterizerState.ForcedSampleCount = 0;
+    psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+    // --- BLEND  ---
+    psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
+    psoDesc.BlendState.IndependentBlendEnable = FALSE;
+
+    D3D12_RENDER_TARGET_BLEND_DESC rtBlend{};
+    rtBlend.BlendEnable = FALSE;
+    rtBlend.LogicOpEnable = FALSE;
+    rtBlend.SrcBlend = D3D12_BLEND_ONE;
+    rtBlend.DestBlend = D3D12_BLEND_ZERO;
+    rtBlend.BlendOp = D3D12_BLEND_OP_ADD;
+    rtBlend.SrcBlendAlpha = D3D12_BLEND_ONE;
+    rtBlend.DestBlendAlpha = D3D12_BLEND_ZERO;
+    rtBlend.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+    rtBlend.LogicOp = D3D12_LOGIC_OP_NOOP;
+    rtBlend.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+    psoDesc.BlendState.RenderTarget[0] = rtBlend;
+
+    // --- DEPTH STENCIL ---
     psoDesc.DepthStencilState.DepthEnable = FALSE;
+    psoDesc.DepthStencilState.StencilEnable = FALSE;
+
+    // --- フォーマット・サンプル ---
+    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+    psoDesc.NumRenderTargets = 1;
+    psoDesc.SampleMask = UINT_MAX;
+    psoDesc.SampleDesc.Count = 1;
+
+    // 作成
     _dev->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pso));
-    if (vsBlob) vsBlob->Release();
-    if (psBlob) psBlob->Release();
+
 
     // 頂点バッファ
     Vertex vertices[] = {
@@ -92,6 +136,18 @@ void Renderer::Draw()
     _cmdAllocator->Reset();
     _cmdList->Reset(_cmdAllocator, _pso);
 
+   
+
+    
+    D3D12_RESOURCE_BARRIER barrier_to_rt{};
+    barrier_to_rt.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier_to_rt.Transition.pResource = _renderTargets[_frameIndex];
+    barrier_to_rt.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;        
+    barrier_to_rt.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;  
+    _cmdList->ResourceBarrier(1, &barrier_to_rt);
+
+    
+
     D3D12_CPU_DESCRIPTOR_HANDLE rtv = _rtvHeap->GetCPUDescriptorHandleForHeapStart();
     rtv.ptr += _frameIndex * _rtvDescSize;
     FLOAT clearColor[] = { 0,0,0,1 };
@@ -101,7 +157,30 @@ void Renderer::Draw()
     _cmdList->SetGraphicsRootSignature(_rootSig);
     _cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     _cmdList->IASetVertexBuffers(0, 1, &_vbView);
+    
+
+    
+    D3D12_VIEWPORT viewport{};
+    viewport.Width = 1280.0f;
+    viewport.Height = 720.0f;
+    viewport.MaxDepth = 1.0f;
+    _cmdList->RSSetViewports(1, &viewport);
+
+    D3D12_RECT scissorRect{};
+    scissorRect.right = 1280;
+    scissorRect.bottom = 720;
+    _cmdList->RSSetScissorRects(1, &scissorRect);
     _cmdList->DrawInstanced(3, 1, 0, 0);
+
+    
+
+    
+    D3D12_RESOURCE_BARRIER barrier_to_present{};
+    barrier_to_present.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier_to_present.Transition.pResource = _renderTargets[_frameIndex];
+    barrier_to_present.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; 
+    barrier_to_present.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;       
+    _cmdList->ResourceBarrier(1, &barrier_to_present);
 
     _cmdList->Close();
     ID3D12CommandList* lists[] = { _cmdList };

@@ -9,11 +9,15 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     const UINT width = 1280, height = 720;
+    ID3D12Debug* debugLayer = nullptr;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugLayer)))) {
+        debugLayer->EnableDebugLayer();
+        debugLayer->Release();
+    }
     WNDCLASSEX w{}; w.cbSize = sizeof(WNDCLASSEX); w.lpfnWndProc = DefWindowProc; w.lpszClassName = _T("DX12"); w.hInstance = hInstance;
     RegisterClassEx(&w);
     HWND hwnd = CreateWindow(w.lpszClassName, _T("DX12 Triangle"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, nullptr, nullptr, hInstance, nullptr);
     ShowWindow(hwnd, SW_SHOW);
-
     IDXGIFactory6* dxgiFactory = nullptr;
     CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
     ID3D12Device* dev = nullptr; D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&dev));
