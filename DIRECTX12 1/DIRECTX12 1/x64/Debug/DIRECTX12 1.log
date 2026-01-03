@@ -1,5 +1,28 @@
 ﻿  3DRenderer.cpp
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\3DRenderer.cpp(29,11): error C3861: 'CreateDescriptorHeap': 識別子が見つかりませんでした
   main.cpp
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.h(16,9): error C2144: 構文エラー: 'float' は ',' によって先行されなければなりません。
+  (ソース ファイル 'main.cpp' をコンパイルしています)
+  
   Renderer.cpp
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.h(16,9): error C2144: 構文エラー: 'float' は ',' によって先行されなければなりません。
+  (ソース ファイル 'Renderer.cpp' をコンパイルしています)
+  
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(7,11): error C2511: 'Renderer::Renderer(ID3D12Device *,ID3D12GraphicsCommandList *,IDXGISwapChain4 *,ID3D12CommandAllocator *,ID3D12CommandQueue *,ID3D12DescriptorHeap *,UINT,ID3D12Resource *[])': オーバーロードされたメンバー関数が 'Renderer' にありません。
+      C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.h(5,7):
+      'Renderer' の宣言を確認してください
+  
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(18,1): error C2550: 'Renderer::{ctor}': コンストラクターの初期化子リストはコンストラクターの定義だけに許されます。
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(19,5): error C2597: 静的でないメンバー 'Renderer::_renderTargets' への参照が正しくありません。
+      C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(19,5):
+      'Renderer::_renderTargets' の宣言を確認してください
+  
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(19,5): error C3867: 'Renderer::_renderTargets': 非標準の構文です。メンバーにポインタを作成するには '&' を使用してください
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(19,5): error C2568: '[': オーバーロード関数のうち、どれを呼び出すのか決定できません。
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(20,5): error C2597: 静的でないメンバー 'Renderer::_renderTargets' への参照が正しくありません。
+      C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(20,5):
+      'Renderer::_renderTargets' の宣言を確認してください
+  
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(20,5): error C3867: 'Renderer::_renderTargets': 非標準の構文です。メンバーにポインタを作成するには '&' を使用してください
+C:\Users\Owner\Desktop\1月23日\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(20,5): error C2568: '[': オーバーロード関数のうち、どれを呼び出すのか決定できません。
   コードを生成中...
-  DIRECTX12 1.vcxproj -> C:\Users\ktc\Desktop\1213\DIRECTX12 1\x64\Debug\DIRECTX12 1.exe

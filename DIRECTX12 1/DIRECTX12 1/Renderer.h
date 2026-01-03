@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d12.h>
 #include <dxgi1_6.h>
+#include <DirectXMath.h>
 
 class Renderer {
 public:
@@ -13,9 +14,12 @@ public:
         ID3D12DescriptorHeap* rtvHeap,
         UINT rtvDescSize,
         ID3D12Resource* renderTargets[2]
+        
     );
-
+    float posX = 0.0f;
+    float posY = 0.0f;
     void Init();
+    void Update();
     void Draw();
 
 private:
@@ -33,4 +37,11 @@ private:
     ID3D12Resource* _vertexBuffer = nullptr;
     D3D12_VERTEX_BUFFER_VIEW _vbView = {};
     UINT _frameIndex;
+    struct ConstBufferData
+    {
+        DirectX::XMMATRIX mat;
+   };
+
+    ID3D12Resource* _constantBuffer = nullptr;
+    UINT8* _cbvMappedData = nullptr;
 };

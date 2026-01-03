@@ -21,6 +21,7 @@ _cmdQueue(cmdQueue), _rtvHeap(rtvHeap), _rtvDescSize(rtvDescSize)
     _frameIndex = _swapchain->GetCurrentBackBufferIndex();
 }
 
+
 void Renderer::Init()
 {
     // ルートシグネチャ
