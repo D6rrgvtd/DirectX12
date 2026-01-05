@@ -18,9 +18,10 @@ public:
     );
     float posX = 0.0f;
     float posY = 0.0f;
+    float scale = 1.0f;
     void Init();
-    void Update();
     void Draw();
+    void Update();
 
 private:
     ID3D12Device* _dev;
@@ -31,7 +32,9 @@ private:
     ID3D12DescriptorHeap* _rtvHeap;
     UINT _rtvDescSize;
     ID3D12Resource* _renderTargets[2];
-
+    ID3D12Fence* _fence = nullptr;
+    UINT64 _fenceValue = 0;
+    HANDLE _fenceEvent = nullptr;
     ID3D12RootSignature* _rootSig = nullptr;
     ID3D12PipelineState* _pso = nullptr;
     ID3D12Resource* _vertexBuffer = nullptr;
@@ -44,4 +47,6 @@ private:
 
     ID3D12Resource* _constantBuffer = nullptr;
     UINT8* _cbvMappedData = nullptr;
+
+    
 };

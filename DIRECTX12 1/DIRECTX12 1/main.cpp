@@ -6,7 +6,21 @@
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+    if (msg == WM_DESTROY)
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(hwnd, msg, wp, lp);
+}
+
+
+int WINAPI WinMain(_In_ HINSTANCE hInstance,
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPSTR lpCmdLine,
+    _In_ int nCmdShow)
 {
     const UINT width = 1280, height = 720;
     ID3D12Debug* debugLayer = nullptr;
@@ -14,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         debugLayer->EnableDebugLayer();
         debugLayer->Release();
     }
-    WNDCLASSEX w{}; w.cbSize = sizeof(WNDCLASSEX); w.lpfnWndProc = DefWindowProc; w.lpszClassName = _T("DX12"); w.hInstance = hInstance;
+    WNDCLASSEX w{}; w.cbSize = sizeof(WNDCLASSEX); w.lpfnWndProc = WndProc; w.lpszClassName = _T("DX12"); w.hInstance = hInstance;
     RegisterClassEx(&w);
     HWND hwnd = CreateWindow(w.lpszClassName, _T("DX12 Triangle"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, nullptr, nullptr, hInstance, nullptr);
     ShowWindow(hwnd, SW_SHOW);
@@ -39,6 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     MSG msg{}; while (true) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) { TranslateMessage(&msg); DispatchMessage(&msg); if (msg.message == WM_QUIT) break; }
+        renderer.Update();
         renderer.Draw();
     }
 

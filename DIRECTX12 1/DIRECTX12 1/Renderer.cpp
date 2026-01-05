@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include <d3dcompiler.h>
+#include <Windows.h>
 #pragma comment(lib,"d3dcompiler.lib")
 
 struct Vertex { float pos[2]; float col[3]; };
@@ -25,7 +26,13 @@ _cmdQueue(cmdQueue), _rtvHeap(rtvHeap), _rtvDescSize(rtvDescSize)
 void Renderer::Init()
 {
     // ルートシグネチャ
+    D3D12_ROOT_PARAMETER rootParam{};
+    rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParam.Descriptor.ShaderRegister = 0;
+    rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
     D3D12_ROOT_SIGNATURE_DESC rsDesc{};
+    rsDesc.NumParameters = 1;
+    rsDesc.pParameters = &rootParam;
     rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
     ID3DBlob* sigBlob = nullptr;
     ID3DBlob* errBlob = nullptr;
@@ -39,8 +46,19 @@ void Renderer::Init()
     const char* shaderCode = R"(
 struct VSInput { float2 pos : POSITION; float3 col : COLOR; };
 struct PSInput { float4 pos : SV_POSITION; float3 col : COLOR; };
-PSInput VS(VSInput input) { PSInput o; o.pos = float4(input.pos,0,1); o.col = input.col; return o; }
-float4 PS(PSInput input) : SV_TARGET { return float4(input.col,1); }
+cbuffer ConstBuffer : register(b0)
+{
+    float4x4 mat;
+};
+
+PSInput VS(VSInput input)
+{
+    PSInput o;
+    o.pos = mul(float4(input.pos, 0, 1), mat);
+    o.col = input.col;
+    return o;
+}
+float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
 )";
     ID3DBlob* vsBlob = nullptr;
     ID3DBlob* psBlob = nullptr;
@@ -48,7 +66,7 @@ float4 PS(PSInput input) : SV_TARGET { return float4(input.col,1); }
     D3DCompile(shaderCode, strlen(shaderCode), nullptr, nullptr, nullptr, "VS", "vs_5_0", 0, 0, &vsBlob, &err);
     D3DCompile(shaderCode, strlen(shaderCode), nullptr, nullptr, nullptr, "PS", "ps_5_0", 0, 0, &psBlob, &err);
 
-    // --- PSO ---
+    
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
     ZeroMemory(&psoDesc, sizeof(psoDesc));
     // 入力レイアウト
@@ -129,6 +147,33 @@ float4 PS(PSInput input) : SV_TARGET { return float4(input.col,1); }
     _vbView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
     _vbView.StrideInBytes = sizeof(Vertex);
     _vbView.SizeInBytes = vbSize;
+    D3D12_HEAP_PROPERTIES heapProps{};
+    heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+    D3D12_RESOURCE_DESC cbDesc{};
+    cbDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    cbDesc.Width = (sizeof(ConstBufferData) + 255) & ~255; // 256byte alignment
+    cbDesc.Height = 1;
+    cbDesc.DepthOrArraySize = 1;
+    cbDesc.MipLevels = 1;
+    cbDesc.SampleDesc.Count = 1;
+    cbDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+    _dev->CreateCommittedResource(
+        &heapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &cbDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&_constantBuffer)
+    );
+
+    
+    _constantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&_cbvMappedData));
+
+    _dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    _fenceValue = 1;
+    _fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 }
 
 void Renderer::Draw()
@@ -156,6 +201,8 @@ void Renderer::Draw()
 
     _cmdList->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
     _cmdList->SetGraphicsRootSignature(_rootSig);
+    _cmdList->SetGraphicsRootConstantBufferView(
+        0, _constantBuffer->GetGPUVirtualAddress());
     _cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     _cmdList->IASetVertexBuffers(0, 1, &_vbView);
     
@@ -187,4 +234,39 @@ void Renderer::Draw()
     ID3D12CommandList* lists[] = { _cmdList };
     _cmdQueue->ExecuteCommandLists(1, lists);
     _swapchain->Present(1, 0);
+    // GPU にフェンスを投げる
+    _cmdQueue->Signal(_fence, _fenceValue);
+
+    // GPU が終わるまで待つ
+    if (_fence->GetCompletedValue() < _fenceValue)
+    {
+        _fence->SetEventOnCompletion(_fenceValue, _fenceEvent);
+        WaitForSingleObject(_fenceEvent, INFINITE);
+    }
+
+    _fenceValue++;
+
+}
+void Renderer::Update()
+{
+    float speed = 0.02f;
+
+    if (GetAsyncKeyState('W') & 0x8000) posY += speed;
+    if (GetAsyncKeyState('S') & 0x8000) posY -= speed;
+    if (GetAsyncKeyState('A') & 0x8000) posX -= speed;
+    if (GetAsyncKeyState('D') & 0x8000) posX += speed;
+
+    if (GetAsyncKeyState('Q') & 0x8000) scale += 0.01f;
+    if (GetAsyncKeyState('E') & 0x8000) scale -= 0.01f;
+    scale = max(scale, 0.1f);
+
+    using namespace DirectX;
+    XMMATRIX S = XMMatrixScaling(scale, scale, 1.0f);
+    XMMATRIX T = XMMatrixTranslation(posX, posY, 0.0f);
+
+    XMMATRIX world = S * T;
+
+    ConstBufferData cb{};
+    cb.mat = XMMatrixTranspose(world);
+    memcpy(_cbvMappedData, &cb, sizeof(cb));
 }

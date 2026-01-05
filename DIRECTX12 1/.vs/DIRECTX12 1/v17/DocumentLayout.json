@@ -13,10 +13,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\Owner\\Desktop\\1\u670823\u65E5\\DIRECTX12 1\\DIRECTX12 1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|solutionrelative:DIRECTX12 1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\Owner\\Desktop\\1\u670823\u65E5\\DIRECTX12 1\\DIRECTX12 1\\3DRenderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|solutionrelative:DIRECTX12 1\\3DRenderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,21 +22,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "3DRenderer.cpp",
-              "DocumentMoniker": "C:\\Users\\Owner\\Desktop\\1\u670823\u65E5\\DIRECTX12 1\\DIRECTX12 1\\3DRenderer.cpp",
-              "RelativeDocumentMoniker": "DIRECTX12 1\\3DRenderer.cpp",
-              "ToolTip": "C:\\Users\\Owner\\Desktop\\1\u670823\u65E5\\DIRECTX12 1\\DIRECTX12 1\\3DRenderer.cpp",
-              "RelativeToolTip": "DIRECTX12 1\\3DRenderer.cpp",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAAABwAAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-01-03T11:16:09.382Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
@@ -53,7 +36,7 @@
               "RelativeDocumentMoniker": "DIRECTX12 1\\Renderer.h",
               "ToolTip": "C:\\Users\\Owner\\Desktop\\1\u670823\u65E5\\DIRECTX12 1\\DIRECTX12 1\\Renderer.h",
               "RelativeToolTip": "DIRECTX12 1\\Renderer.h",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABQAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAABQAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-12-11T18:57:05.985Z",
               "EditorCaption": ""
@@ -66,7 +49,7 @@
               "RelativeDocumentMoniker": "DIRECTX12 1\\Renderer.cpp",
               "ToolTip": "C:\\Users\\Owner\\Desktop\\1\u670823\u65E5\\DIRECTX12 1\\DIRECTX12 1\\Renderer.cpp",
               "RelativeToolTip": "DIRECTX12 1\\Renderer.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAACcAAAAAAAAAAAAAADwAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-12-08T19:15:15.999Z",
               "EditorCaption": ""
@@ -79,7 +62,7 @@
               "RelativeDocumentMoniker": "DIRECTX12 1\\main.cpp",
               "ToolTip": "C:\\Users\\Owner\\Desktop\\1\u670823\u65E5\\DIRECTX12 1\\DIRECTX12 1\\main.cpp",
               "RelativeToolTip": "DIRECTX12 1\\main.cpp",
-              "ViewState": "AgIAACcAAAAAAAAAAAAAACsAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAC0AAAAAAAAAAAAAAB4AAABKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-12-04T11:24:48.564Z",
               "EditorCaption": ""
