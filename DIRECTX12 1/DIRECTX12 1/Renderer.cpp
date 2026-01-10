@@ -3,7 +3,7 @@
 #include <Windows.h>
 #pragma comment(lib,"d3dcompiler.lib")
 
-struct Vertex { float pos[2]; float col[3]; };
+struct Vertex { float pos[3]; float col[4]; };
 
 Renderer::Renderer(
     ID3D12Device* dev,
@@ -131,11 +131,12 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
     _dev->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pso));
 
 
-    // 頂点バッファ
+    // 頂点バッファ  四角形
     Vertex vertices[] = {
-        {{0,0.5f},{1,0,0}},
-        {{-0.5f,-0.5f},{0,1,0}},
-        {{0.5f,-0.5f},{0,0,1}}
+        {{-0.25f,-0.5f,0},{0,0,0,0}},
+        {{-0.25f,0.5f,0},{0,0,0,0}},
+        {{0.25f,-0.5f,0},{0,0,0,0}},
+        {{0.25f,0.5f,0},{0,0,0,0}}
     };
     UINT vbSize = sizeof(vertices);
     D3D12_HEAP_PROPERTIES heapProp{}; heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -149,7 +150,6 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
     _vbView.SizeInBytes = vbSize;
     D3D12_HEAP_PROPERTIES heapProps{};
     heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
-
     D3D12_RESOURCE_DESC cbDesc{};
     cbDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     cbDesc.Width = (sizeof(ConstBufferData) + 255) & ~255; // 256byte alignment
@@ -203,13 +203,13 @@ void Renderer::Draw()
     _cmdList->SetGraphicsRootSignature(_rootSig);
     _cmdList->SetGraphicsRootConstantBufferView(
         0, _constantBuffer->GetGPUVirtualAddress());
-    _cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP/*D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST*/);// /*hasannkaku
     _cmdList->IASetVertexBuffers(0, 1, &_vbView);
     
 
     
     D3D12_VIEWPORT viewport{};
-    viewport.Width = 1280.0f;
+    viewport.Width = 1280.0f;   
     viewport.Height = 720.0f;
     viewport.MaxDepth = 1.0f;
     _cmdList->RSSetViewports(1, &viewport);
@@ -218,7 +218,7 @@ void Renderer::Draw()
     scissorRect.right = 1280;
     scissorRect.bottom = 720;
     _cmdList->RSSetScissorRects(1, &scissorRect);
-    _cmdList->DrawInstanced(3, 1, 0, 0);
+    _cmdList->DrawInstanced(4, 1, 0, 0);
 
     
 
@@ -249,15 +249,15 @@ void Renderer::Draw()
 }
 void Renderer::Update()
 {
-    float speed = 0.02f;
+    float speed = 0.004f;
 
     if (GetAsyncKeyState('W') & 0x8000) posY += speed;
     if (GetAsyncKeyState('S') & 0x8000) posY -= speed;
     if (GetAsyncKeyState('A') & 0x8000) posX -= speed;
     if (GetAsyncKeyState('D') & 0x8000) posX += speed;
 
-    if (GetAsyncKeyState('Q') & 0x8000) scale += 0.01f;
-    if (GetAsyncKeyState('E') & 0x8000) scale -= 0.01f;
+    if (GetAsyncKeyState('Q') & 0x8000) scale += 0.003f;
+    if (GetAsyncKeyState('E') & 0x8000) scale -= 0.003f;
     scale = max(scale, 0.1f);
 
     using namespace DirectX;
