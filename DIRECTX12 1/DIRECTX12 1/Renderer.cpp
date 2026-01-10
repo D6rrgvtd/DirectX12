@@ -203,7 +203,7 @@ void Renderer::Draw()
     _cmdList->SetGraphicsRootSignature(_rootSig);
     _cmdList->SetGraphicsRootConstantBufferView(
         0, _constantBuffer->GetGPUVirtualAddress());
-    _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP/*D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST*/);// /*hasannkaku
+    _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); //D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST‚ÍŽOŠp
     _cmdList->IASetVertexBuffers(0, 1, &_vbView);
     
 
