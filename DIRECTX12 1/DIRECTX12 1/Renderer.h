@@ -39,6 +39,10 @@ private:
     ID3D12PipelineState* _pso = nullptr;
     ID3D12Resource* _vertexBuffer = nullptr;
     D3D12_VERTEX_BUFFER_VIEW _vbView = {};
+    ID3D12Resource* _triangleVB = nullptr;
+    D3D12_VERTEX_BUFFER_VIEW _trianglevbView = {};
+
+
     UINT _frameIndex;
     struct ConstBufferData
     {

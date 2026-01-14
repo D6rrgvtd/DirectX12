@@ -148,6 +148,34 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
     _vbView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
     _vbView.StrideInBytes = sizeof(Vertex);
     _vbView.SizeInBytes = vbSize;
+    Vertex triangVertices[] =
+    {
+        {{0.0f,0.3f},{1,0,0,1}},
+        {{-.3f, -0.3f,0},{0,1,0,1}},
+        {{0.3f, -0.3f,0},{0,0,1,1}}
+    };
+    UINT triVBSize = sizeof(triangVertices);
+
+    D3D12_RESOURCE_DESC triResDesc = resDesc;
+    triResDesc.Width = triVBSize;
+
+    _dev->CreateCommittedResource(
+        &heapProp,
+        D3D12_HEAP_FLAG_NONE,
+        &triResDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&_triangleVB)
+    );
+
+    void* triMapped = nullptr;
+    _triangleVB->Map(0, nullptr, &triMapped);
+    memcpy(triMapped, triangVertices, triVBSize);
+    _triangleVB->Unmap(0, nullptr);
+
+    _trianglevbView.BufferLocation = _triangleVB->GetGPUVirtualAddress();
+    _trianglevbView.StrideInBytes = sizeof(Vertex);
+    _trianglevbView.SizeInBytes = triVBSize;
     D3D12_HEAP_PROPERTIES heapProps{};
     heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
     D3D12_RESOURCE_DESC cbDesc{};
@@ -203,7 +231,9 @@ void Renderer::Draw()
     _cmdList->SetGraphicsRootSignature(_rootSig);
     _cmdList->SetGraphicsRootConstantBufferView(
         0, _constantBuffer->GetGPUVirtualAddress());
-    _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); //D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST‚ÍŽOŠp
+    _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); 
+    _cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    _cmdList->IASetVertexBuffers(0, 1, &_trianglevbView);
     _cmdList->IASetVertexBuffers(0, 1, &_vbView);
     
 
@@ -219,6 +249,7 @@ void Renderer::Draw()
     scissorRect.bottom = 720;
     _cmdList->RSSetScissorRects(1, &scissorRect);
     _cmdList->DrawInstanced(4, 1, 0, 0);
+    _cmdList->DrawInstanced(3, 1, 0, 0);
 
     
 
