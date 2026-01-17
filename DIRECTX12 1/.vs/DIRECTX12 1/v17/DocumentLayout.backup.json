@@ -1,17 +1,17 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\",
+  "WorkspaceRootPath": "C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\Renderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\Renderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|solutionrelative:DIRECTX12 1\\Renderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|solutionrelative:DIRECTX12 1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\Renderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\Renderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{73782FBD-38BC-4FA6-8DC0-CE3E6133BED1}|DIRECTX12 1\\DIRECTX12 1.vcxproj|solutionrelative:DIRECTX12 1\\Renderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -22,34 +22,29 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "Renderer.h",
-              "DocumentMoniker": "C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\Renderer.h",
+              "DocumentMoniker": "C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\Renderer.h",
               "RelativeDocumentMoniker": "DIRECTX12 1\\Renderer.h",
-              "ToolTip": "C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\Renderer.h",
+              "ToolTip": "C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\Renderer.h",
               "RelativeToolTip": "DIRECTX12 1\\Renderer.h",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAACoAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-11T18:57:05.985Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-11T18:57:05.985Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Renderer.cpp",
-              "DocumentMoniker": "C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\Renderer.cpp",
+              "DocumentMoniker": "C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\Renderer.cpp",
               "RelativeDocumentMoniker": "DIRECTX12 1\\Renderer.cpp",
-              "ToolTip": "C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\Renderer.cpp*",
-              "RelativeToolTip": "DIRECTX12 1\\Renderer.cpp*",
-              "ViewState": "AgIAAOkAAAAAAAAAAAAAAOoAAAAFAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\Renderer.cpp",
+              "RelativeToolTip": "DIRECTX12 1\\Renderer.cpp",
+              "ViewState": "AgIAABYBAAAAAAAAAAAmwC4BAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-12-08T19:15:15.999Z",
               "EditorCaption": ""
@@ -58,14 +53,13 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "main.cpp",
-              "DocumentMoniker": "C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\main.cpp",
+              "DocumentMoniker": "C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\main.cpp",
               "RelativeDocumentMoniker": "DIRECTX12 1\\main.cpp",
-              "ToolTip": "C:\\Users\\ktc\\Desktop\\0114\\DIRECTX12 1\\DIRECTX12 1\\main.cpp",
+              "ToolTip": "C:\\Users\\ktc\\Desktop\\117\\DIRECTX12 1\\DIRECTX12 1\\main.cpp",
               "RelativeToolTip": "DIRECTX12 1\\main.cpp",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAAAAwAAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAAwAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-04T11:24:48.564Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-04T11:24:48.564Z"
             }
           ]
         }

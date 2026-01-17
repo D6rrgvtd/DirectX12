@@ -27,7 +27,7 @@ void Renderer::Init()
 {
     // ルートシグネチャ
     D3D12_ROOT_PARAMETER rootParam{};
-    rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;    
     rootParam.Descriptor.ShaderRegister = 0;
     rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
     D3D12_ROOT_SIGNATURE_DESC rsDesc{};
@@ -44,8 +44,18 @@ void Renderer::Init()
 
     // シェーダ
     const char* shaderCode = R"(
-struct VSInput { float2 pos : POSITION; float3 col : COLOR; };
-struct PSInput { float4 pos : SV_POSITION; float3 col : COLOR; };
+struct VSInput
+{
+    float3 pos : POSITION;
+    float3 col : COLOR;
+};
+
+struct PSInput
+{
+    float4 pos : SV_POSITION;
+    float3 col : COLOR;
+};
+
 cbuffer ConstBuffer : register(b0)
 {
     float4x4 mat;
@@ -54,11 +64,16 @@ cbuffer ConstBuffer : register(b0)
 PSInput VS(VSInput input)
 {
     PSInput o;
-    o.pos = mul(float4(input.pos, 0, 1), mat);
+    o.pos = mul(float4(input.pos, 1), mat);
     o.col = input.col;
     return o;
 }
-float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
+
+float4 PS(PSInput input) : SV_TARGET
+{
+    return float4(input.col, 1);
+}
+
 )";
     ID3DBlob* vsBlob = nullptr;
     ID3DBlob* psBlob = nullptr;
@@ -67,15 +82,36 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
     D3DCompile(shaderCode, strlen(shaderCode), nullptr, nullptr, nullptr, "PS", "ps_5_0", 0, 0, &psBlob, &err);
 
     
+  
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
     ZeroMemory(&psoDesc, sizeof(psoDesc));
-    // 入力レイアウト
-    D3D12_INPUT_ELEMENT_DESC inputElements[] = {
-        {"POSITION",0,DXGI_FORMAT_R32G32_FLOAT,0,0,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0},
-        {"COLOR",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}
-    };
 
+    
+    D3D12_INPUT_ELEMENT_DESC inputElements[] =
+    {
+        {
+            "POSITION", 0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            0,
+            D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+            0
+        },
+        {
+            "COLOR", 0,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            0,
+            D3D12_APPEND_ALIGNED_ELEMENT,
+            D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+            0
+        }
+    };
     psoDesc.InputLayout = { inputElements, _countof(inputElements) };
+
+    psoDesc.pRootSignature = _rootSig;
+    psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
+    psoDesc.PS = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
+
 
 
     // 入力レイアウト
@@ -84,7 +120,6 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
     psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
     psoDesc.PS = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
 
-    // 三角形描画
     psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
     // --- RASTERIZER  ---
@@ -133,10 +168,10 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
 
     // 頂点バッファ  四角形
     Vertex vertices[] = {
-        {{-0.25f,-0.5f,0},{0,0,0,0}},
-        {{-0.25f,0.5f,0},{0,0,0,0}},
-        {{0.25f,-0.5f,0},{0,0,0,0}},
-        {{0.25f,0.5f,0},{0,0,0,0}}
+        {{-0.25f,-0.5f,0},{0,0,1}},
+        {{-0.25f,0.5f,0},{0,0,1}},
+        {{0.25f,-0.5f,0},{0,0,1}},
+        {{0.25f,0.5f,0},{0,0,1}}
     };
     UINT vbSize = sizeof(vertices);
     D3D12_HEAP_PROPERTIES heapProp{}; heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -148,11 +183,12 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
     _vbView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
     _vbView.StrideInBytes = sizeof(Vertex);
     _vbView.SizeInBytes = vbSize;
+    //頂点バッファ　三角形
     Vertex triangVertices[] =
-    {
-        {{0.0f,0.3f},{1,0,0,1}},
-        {{-.3f, -0.3f,0},{0,1,0,1}},
-        {{0.3f, -0.3f,0},{0,0,1,1}}
+    {   
+        {{0.0f,0.3f,0},{1,0,0}},
+        {{-.3f, -0.3f,0},{1,0,0}},
+        {{0.3f, -0.3f,0},{1,0,0}}
     };
     UINT triVBSize = sizeof(triangVertices);
 
@@ -180,7 +216,7 @@ float4 PS(PSInput input) : SV_TARGET { return float4(1,0,0,1); }
     heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
     D3D12_RESOURCE_DESC cbDesc{};
     cbDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    cbDesc.Width = (sizeof(ConstBufferData) + 255) & ~255; // 256byte alignment
+    cbDesc.Width = (sizeof(ConstBufferData) + 255) & ~255; 
     cbDesc.Height = 1;
     cbDesc.DepthOrArraySize = 1;
     cbDesc.MipLevels = 1;
@@ -231,10 +267,7 @@ void Renderer::Draw()
     _cmdList->SetGraphicsRootSignature(_rootSig);
     _cmdList->SetGraphicsRootConstantBufferView(
         0, _constantBuffer->GetGPUVirtualAddress());
-    _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); 
-    _cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    _cmdList->IASetVertexBuffers(0, 1, &_trianglevbView);
-    _cmdList->IASetVertexBuffers(0, 1, &_vbView);
+ 
     
 
     
@@ -248,8 +281,27 @@ void Renderer::Draw()
     scissorRect.right = 1280;
     scissorRect.bottom = 720;
     _cmdList->RSSetScissorRects(1, &scissorRect);
-    _cmdList->DrawInstanced(4, 1, 0, 0);
-    _cmdList->DrawInstanced(3, 1, 0, 0);
+
+    {
+        using namespace DirectX;
+        XMMATRIX identity = XMMatrixIdentity();
+
+        ConstBufferData cb{};
+        cb.mat = XMMatrixTranspose(identity);
+        memcpy(_cbvMappedData, &cb, sizeof(cb));
+
+        _cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        _cmdList->IASetVertexBuffers(0, 1, &_trianglevbView);
+        _cmdList->DrawInstanced(3, 1, 0, 0);
+
+    }
+   
+    //ことらを動かせるようにする　そして弾も打てるようにする
+    {
+        _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        _cmdList->IASetVertexBuffers(0, 1, &_vbView);
+        _cmdList->DrawInstanced(4, 1, 0, 0);
+    }
 
     
 
