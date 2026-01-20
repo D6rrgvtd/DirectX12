@@ -18,7 +18,7 @@ public:
     );
     float posX = 0.0f;
     float posY = 0.0f;
-    float scale = 1.0f;
+    float scale = 0.7f;
     void Init();
     void Draw();
     void Update();
@@ -49,8 +49,10 @@ private:
         DirectX::XMMATRIX mat;
    };
 
-    ID3D12Resource* _constantBuffer = nullptr;
-    UINT8* _cbvMappedData = nullptr;
+    ID3D12Resource* _triangleCB = nullptr;
+    UINT8* _triangleCBData = nullptr;
 
+    ID3D12Resource* _rectCB = nullptr;
+    UINT8* _rectCBData = nullptr;
     
 };

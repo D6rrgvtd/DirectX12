@@ -47,13 +47,13 @@ void Renderer::Init()
 struct VSInput
 {
     float3 pos : POSITION;
-    float3 col : COLOR;
+    float4 col : COLOR;
 };
 
 struct PSInput
 {
     float4 pos : SV_POSITION;
-    float3 col : COLOR;
+    float4 col : COLOR;
 };
 
 cbuffer ConstBuffer : register(b0)
@@ -71,7 +71,7 @@ PSInput VS(VSInput input)
 
 float4 PS(PSInput input) : SV_TARGET
 {
-    return float4(input.col, 1);
+    return input.col;
 }
 
 )";
@@ -89,23 +89,10 @@ float4 PS(PSInput input) : SV_TARGET
     
     D3D12_INPUT_ELEMENT_DESC inputElements[] =
     {
-        {
-            "POSITION", 0,
-            DXGI_FORMAT_R32G32B32_FLOAT,
-            0,
-            0,
-            D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-            0
-        },
-        {
-            "COLOR", 0,
-            DXGI_FORMAT_R32G32B32_FLOAT,
-            0,
-            D3D12_APPEND_ALIGNED_ELEMENT,
-            D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-            0
-        }
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
+
     psoDesc.InputLayout = { inputElements, _countof(inputElements) };
 
     psoDesc.pRootSignature = _rootSig;
@@ -140,15 +127,13 @@ float4 PS(PSInput input) : SV_TARGET
     psoDesc.BlendState.IndependentBlendEnable = FALSE;
 
     D3D12_RENDER_TARGET_BLEND_DESC rtBlend{};
-    rtBlend.BlendEnable = FALSE;
-    rtBlend.LogicOpEnable = FALSE;
-    rtBlend.SrcBlend = D3D12_BLEND_ONE;
-    rtBlend.DestBlend = D3D12_BLEND_ZERO;
+    rtBlend.BlendEnable = TRUE;
+    rtBlend.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+    rtBlend.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
     rtBlend.BlendOp = D3D12_BLEND_OP_ADD;
     rtBlend.SrcBlendAlpha = D3D12_BLEND_ONE;
     rtBlend.DestBlendAlpha = D3D12_BLEND_ZERO;
     rtBlend.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-    rtBlend.LogicOp = D3D12_LOGIC_OP_NOOP;
     rtBlend.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
     psoDesc.BlendState.RenderTarget[0] = rtBlend;
 
@@ -168,16 +153,24 @@ float4 PS(PSInput input) : SV_TARGET
 
     // 頂点バッファ  四角形
     Vertex vertices[] = {
-        {{-0.25f,-0.5f,0},{0,0,1}},
-        {{-0.25f,0.5f,0},{0,0,1}},
-        {{0.25f,-0.5f,0},{0,0,1}},
-        {{0.25f,0.5f,0},{0,0,1}}
+        {{-0.25f,-0.5f,0},{0,0,1,1}},
+        {{-0.25f,0.5f,0},{0,0,1,1}},
+        {{0.25f,-0.5f,0},{0,0,1,1}},
+        {{0.25f,0.5f,0},{0,0,1,1}}
     };
     UINT vbSize = sizeof(vertices);
     D3D12_HEAP_PROPERTIES heapProp{}; heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
     D3D12_RESOURCE_DESC resDesc{}; resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     resDesc.Width = vbSize; resDesc.Height = 1; resDesc.DepthOrArraySize = 1;
     resDesc.MipLevels = 1; resDesc.SampleDesc.Count = 1; resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    D3D12_RESOURCE_DESC cbDesc{};
+    cbDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    cbDesc.Width = (sizeof(ConstBufferData) + 255) & ~255;
+    cbDesc.Height = 1;
+    cbDesc.DepthOrArraySize = 1;
+    cbDesc.MipLevels = 1;
+    cbDesc.SampleDesc.Count = 1;
+    cbDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
     _dev->CreateCommittedResource(&heapProp, D3D12_HEAP_FLAG_NONE, &resDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&_vertexBuffer));
     void* mapped = nullptr; _vertexBuffer->Map(0, nullptr, &mapped); memcpy(mapped, vertices, vbSize); _vertexBuffer->Unmap(0, nullptr);
     _vbView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
@@ -186,15 +179,14 @@ float4 PS(PSInput input) : SV_TARGET
     //頂点バッファ　三角形
     Vertex triangVertices[] =
     {   
-        {{0.0f,0.3f,0},{1,0,0}},
-        {{-.3f, -0.3f,0},{1,0,0}},
-        {{0.3f, -0.3f,0},{1,0,0}}
+        {{0.0f,0.3f,0},{1,0,0,0.4f}},
+        {{-.3f, -0.3f,0},{1,0,0,0.4f}},
+        {{0.3f, -0.3f,0},{1,0,0,0.4f}}
     };
     UINT triVBSize = sizeof(triangVertices);
 
     D3D12_RESOURCE_DESC triResDesc = resDesc;
     triResDesc.Width = triVBSize;
-
     _dev->CreateCommittedResource(
         &heapProp,
         D3D12_HEAP_FLAG_NONE,
@@ -212,28 +204,36 @@ float4 PS(PSInput input) : SV_TARGET
     _trianglevbView.BufferLocation = _triangleVB->GetGPUVirtualAddress();
     _trianglevbView.StrideInBytes = sizeof(Vertex);
     _trianglevbView.SizeInBytes = triVBSize;
-    D3D12_HEAP_PROPERTIES heapProps{};
-    heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
-    D3D12_RESOURCE_DESC cbDesc{};
-    cbDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    cbDesc.Width = (sizeof(ConstBufferData) + 255) & ~255; 
-    cbDesc.Height = 1;
-    cbDesc.DepthOrArraySize = 1;
-    cbDesc.MipLevels = 1;
-    cbDesc.SampleDesc.Count = 1;
-    cbDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-    _dev->CreateCommittedResource(
-        &heapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &cbDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(&_constantBuffer)
-    );
+  // --- 三角形用 CB ---
+_dev->CreateCommittedResource(
+    &heapProp,
+    D3D12_HEAP_FLAG_NONE,
+    &resDesc,
+    D3D12_RESOURCE_STATE_GENERIC_READ,
+    nullptr,
+    IID_PPV_ARGS(&_triangleCB)
+
+);
+_triangleCB->Map(0, nullptr, (void**)&_triangleCBData);
+using namespace DirectX;
+ConstBufferData triCB{};
+triCB.mat = XMMatrixTranspose(XMMatrixIdentity());
+memcpy(_triangleCBData, &triCB, sizeof(triCB));
+
+// --- 四角形用 CB ---
+_dev->CreateCommittedResource(
+    &heapProp,
+    D3D12_HEAP_FLAG_NONE,
+    &resDesc,
+    D3D12_RESOURCE_STATE_GENERIC_READ,
+    nullptr,
+    IID_PPV_ARGS(&_rectCB)
+);
+_rectCB->Map(0, nullptr, (void**)&_rectCBData);
 
     
-    _constantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&_cbvMappedData));
+   
 
     _dev->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
     _fenceValue = 1;
@@ -265,9 +265,8 @@ void Renderer::Draw()
 
     _cmdList->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
     _cmdList->SetGraphicsRootSignature(_rootSig);
-    _cmdList->SetGraphicsRootConstantBufferView(
-        0, _constantBuffer->GetGPUVirtualAddress());
- 
+    
+
     
 
     
@@ -282,26 +281,29 @@ void Renderer::Draw()
     scissorRect.bottom = 720;
     _cmdList->RSSetScissorRects(1, &scissorRect);
 
-    {
+    
         using namespace DirectX;
         XMMATRIX identity = XMMatrixIdentity();
 
         ConstBufferData cb{};
         cb.mat = XMMatrixTranspose(identity);
-        memcpy(_cbvMappedData, &cb, sizeof(cb));
+      
+        _cmdList->SetGraphicsRootConstantBufferView(
+            0, _triangleCB->GetGPUVirtualAddress());
 
         _cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         _cmdList->IASetVertexBuffers(0, 1, &_trianglevbView);
         _cmdList->DrawInstanced(3, 1, 0, 0);
 
-    }
+    
    
-    //ことらを動かせるようにする　そして弾も打てるようにする
-    {
+  
+        _cmdList->SetGraphicsRootConstantBufferView(
+            0, _rectCB->GetGPUVirtualAddress());
         _cmdList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
         _cmdList->IASetVertexBuffers(0, 1, &_vbView);
         _cmdList->DrawInstanced(4, 1, 0, 0);
-    }
+    
 
     
 
@@ -351,5 +353,5 @@ void Renderer::Update()
 
     ConstBufferData cb{};
     cb.mat = XMMatrixTranspose(world);
-    memcpy(_cbvMappedData, &cb, sizeof(cb));
+    memcpy(_rectCBData, &cb, sizeof(cb));
 }
