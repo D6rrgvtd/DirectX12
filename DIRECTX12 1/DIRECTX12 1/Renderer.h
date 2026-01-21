@@ -2,6 +2,15 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <DirectXMath.h>
+#include <vector>
+
+struct Bullet
+{
+    bool active = false;
+    DirectX::XMFLOAT2 pos;
+    DirectX::XMFLOAT2 vel;
+    float radius = 0.03f;
+};
 
 class Renderer {
 public:
@@ -41,6 +50,12 @@ private:
     D3D12_VERTEX_BUFFER_VIEW _vbView = {};
     ID3D12Resource* _triangleVB = nullptr;
     D3D12_VERTEX_BUFFER_VIEW _trianglevbView = {};
+    std::vector<Bullet> _bullets;
+    float _fireTimer = 0.0f;
+    ID3D12Resource* _bulletVB = nullptr;
+    D3D12_VERTEX_BUFFER_VIEW _bulletVBView{};
+    ID3D12Resource* _bulletCB = nullptr;
+    void* _bulletCBData = nullptr;
 
 
     UINT _frameIndex;

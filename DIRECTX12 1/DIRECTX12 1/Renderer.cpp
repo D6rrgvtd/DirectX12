@@ -158,6 +158,7 @@ float4 PS(PSInput input) : SV_TARGET
         {{0.25f,-0.5f,0},{0,0,1,1}},
         {{0.25f,0.5f,0},{0,0,1,1}}
     };
+
     UINT vbSize = sizeof(vertices);
     D3D12_HEAP_PROPERTIES heapProp{}; heapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
     D3D12_RESOURCE_DESC resDesc{}; resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -176,6 +177,47 @@ float4 PS(PSInput input) : SV_TARGET
     _vbView.BufferLocation = _vertexBuffer->GetGPUVirtualAddress();
     _vbView.StrideInBytes = sizeof(Vertex);
     _vbView.SizeInBytes = vbSize;
+    //頂点バッファ　弾
+    Vertex bulletVertices[] =
+    {
+        {{-0.1f,-0.2f,0},{0,0,1,1}},
+        {{-0.1f, 0.2f,0},{0,0,1,1}},
+        {{ 0.1f,-0.2f,0},{0,0,1,1}},
+        {{ 0.1f, 0.2f,0},{0,0,1,1}}
+    };
+
+    UINT bulletVBSize = sizeof(bulletVertices);
+
+    // 頂点バッファ
+    D3D12_RESOURCE_DESC bulletResDesc = resDesc;
+    bulletResDesc.Width = bulletVBSize;
+
+    _dev->CreateCommittedResource(
+        &heapProp,
+        D3D12_HEAP_FLAG_NONE,
+        &bulletResDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&_bulletVB)
+    );
+    void* bulletMapped = nullptr;
+    _bulletVB->Map(0, nullptr, &bulletMapped);
+    memcpy(bulletMapped, bulletVertices, bulletVBSize);
+    _bulletVB->Unmap(0, nullptr);
+
+    _bulletVBView.BufferLocation = _bulletVB->GetGPUVirtualAddress();
+    _bulletVBView.StrideInBytes = sizeof(Vertex);
+    _bulletVBView.SizeInBytes = bulletVBSize;
+    _dev->CreateCommittedResource(
+        &heapProp,
+        D3D12_HEAP_FLAG_NONE,
+        &cbDesc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS(&_bulletCB)
+    );
+
+    _bulletCB->Map(0, nullptr, &_bulletCBData);
     //頂点バッファ　三角形
     Vertex triangVertices[] =
     {   
@@ -295,7 +337,28 @@ void Renderer::Draw()
         _cmdList->IASetVertexBuffers(0, 1, &_trianglevbView);
         _cmdList->DrawInstanced(3, 1, 0, 0);
 
-    
+        for (auto& b : _bullets)
+        {
+            if (!b.active) continue;
+
+            using namespace DirectX;
+
+            XMMATRIX T = XMMatrixTranslation(b.pos.x, b.pos.y, 0.0f);
+
+            ConstBufferData cb{};
+            cb.mat = XMMatrixTranspose(T);
+            memcpy(_bulletCBData, &cb, sizeof(cb));
+
+            _cmdList->SetGraphicsRootConstantBufferView(
+                0, _bulletCB->GetGPUVirtualAddress());
+
+            _cmdList->IASetPrimitiveTopology(
+                D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+            _cmdList->IASetVertexBuffers(0, 1, &_bulletVBView);
+            _cmdList->DrawInstanced(4, 1, 0, 0);
+        }
+
    
   
         _cmdList->SetGraphicsRootConstantBufferView(
@@ -335,7 +398,10 @@ void Renderer::Draw()
 void Renderer::Update()
 {
     float speed = 0.004f;
+    float fireInterval = 0.5f;   
+    float bulletSpeed = 0.02f;
 
+    // ===== 四角形操作 =====
     if (GetAsyncKeyState('W') & 0x8000) posY += speed;
     if (GetAsyncKeyState('S') & 0x8000) posY -= speed;
     if (GetAsyncKeyState('A') & 0x8000) posX -= speed;
@@ -344,6 +410,46 @@ void Renderer::Update()
     if (GetAsyncKeyState('Q') & 0x8000) scale += 0.003f;
     if (GetAsyncKeyState('E') & 0x8000) scale -= 0.003f;
     scale = max(scale, 0.1f);
+
+
+    _fireTimer -= 1.0f / 60.0f;   
+
+    bool fire = (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
+
+    if (fire && _fireTimer <= 0.0f)
+    {
+        Bullet b{};
+        b.active = true;
+        b.pos = { posX, posY };
+
+        DirectX::XMFLOAT2 from(posX, posY);
+        DirectX::XMFLOAT2 to(0.0f, -0.1f);
+
+        using namespace DirectX;
+        XMVECTOR dir = XMVector2Normalize(
+            XMVectorSubtract(
+                XMLoadFloat2(&to),
+                XMLoadFloat2(&from)));
+
+        XMVECTOR vel = XMVectorScale(dir, bulletSpeed);
+        XMStoreFloat2(&b.vel, vel);
+
+        _bullets.push_back(b);
+        _fireTimer = fireInterval;
+    }
+    for (auto& b : _bullets)
+    {
+        if (!b.active) continue;
+
+        b.pos.x += b.vel.x;
+        b.pos.y += b.vel.y;
+
+        if (b.pos.x < -1.2f || b.pos.x > 1.2f ||
+            b.pos.y < -1.2f || b.pos.y > 1.2f)
+        {
+            b.active = false;
+        }
+    }
 
     using namespace DirectX;
     XMMATRIX S = XMMatrixScaling(scale, scale, 1.0f);
