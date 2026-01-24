@@ -221,12 +221,11 @@ float4 PS(PSInput input) : SV_TARGET
     //頂点バッファ　三角形
     Vertex triangVertices[] =
     {   
-        {{0.0f,0.3f,0},{1,0,0,0.4f}},
-        {{-.3f, -0.3f,0},{1,0,0,0.4f}},
-        {{0.3f, -0.3f,0},{1,0,0,0.4f}}
+        {{0.0f,0.3f,0},{1,0,0,0.1f}},
+        {{-.3f, -0.3f,0},{1,0,0,0.1f}},
+        {{0.3f, -0.3f,0},{1,0,0,0.1f}}
     };
     UINT triVBSize = sizeof(triangVertices);
-
     D3D12_RESOURCE_DESC triResDesc = resDesc;
     triResDesc.Width = triVBSize;
     _dev->CreateCommittedResource(
@@ -409,6 +408,8 @@ void Renderer::Update()
 
     if (GetAsyncKeyState('Q') & 0x8000) scale += 0.003f;
     if (GetAsyncKeyState('E') & 0x8000) scale -= 0.003f;
+
+    
     scale = max(scale, 0.1f);
 
 
@@ -435,7 +436,7 @@ void Renderer::Update()
         XMStoreFloat2(&b.vel, vel);
 
         _bullets.push_back(b);
-        _fireTimer = fireInterval;
+        _fireTimer = fireInterval;  
     }
     for (auto& b : _bullets)
     {

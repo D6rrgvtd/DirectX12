@@ -57,13 +57,6 @@ private:
     ID3D12Resource* _bulletCB = nullptr;
     void* _bulletCBData = nullptr;
 
-
-    UINT _frameIndex;
-    struct ConstBufferData
-    {
-        DirectX::XMMATRIX mat;
-   };
-
     ID3D12Resource* _triangleCB = nullptr;
     UINT8* _triangleCBData = nullptr;
 
