@@ -221,9 +221,9 @@ float4 PS(PSInput input) : SV_TARGET
     //頂点バッファ　三角形
     Vertex triangVertices[] =
     {   
-        {{0.0f,0.3f,0},{1,0,0,0.1f}},
-        {{-.3f, -0.3f,0},{1,0,0,0.1f}},
-        {{0.3f, -0.3f,0},{1,0,0,0.1f}}
+        {{0.0f,0.3f,0},{1,0,0,1}},
+        {{-.3f, -0.3f,0},{1,0,0,1}},
+        {{0.3f, -0.3f,0},{1,0,0,1}}
     };
     UINT triVBSize = sizeof(triangVertices);
     D3D12_RESOURCE_DESC triResDesc = resDesc;
@@ -259,7 +259,7 @@ _dev->CreateCommittedResource(
 _triangleCB->Map(0, nullptr, (void**)&_triangleCBData);
 using namespace DirectX;
 ConstBufferData triCB{};
-triCB.mat = XMMatrixTranspose(XMMatrixIdentity());
+triCB.mat = XMMatrixTranspose(XMMatrixIdentity());  
 memcpy(_triangleCBData, &triCB, sizeof(triCB));
 
 // --- 四角形用 CB ---
@@ -328,6 +328,7 @@ void Renderer::Draw()
 
         ConstBufferData cb{};
         cb.mat = XMMatrixTranspose(identity);
+        memcpy(_triangleCBData, &cb, sizeof(cb));
       
         _cmdList->SetGraphicsRootConstantBufferView(
             0, _triangleCB->GetGPUVirtualAddress());
@@ -408,7 +409,11 @@ void Renderer::Update()
 
     if (GetAsyncKeyState('Q') & 0x8000) scale += 0.003f;
     if (GetAsyncKeyState('E') & 0x8000) scale -= 0.003f;
-
+    // =====　三角形操作　=====
+    if (GetAsyncKeyState('I') & 0x8000) posY += speed;
+    if (GetAsyncKeyState('K') & 0x8000) posY -= speed;
+    if (GetAsyncKeyState('J') & 0x8000) posX -= speed;
+    if (GetAsyncKeyState ('L'))
     
     scale = max(scale, 0.1f);
 
@@ -451,6 +456,8 @@ void Renderer::Update()
             b.active = false;
         }
     }
+
+
 
     using namespace DirectX;
     XMMATRIX S = XMMatrixScaling(scale, scale, 1.0f);

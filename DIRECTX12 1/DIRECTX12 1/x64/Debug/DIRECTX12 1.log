@@ -1,31 +1,5 @@
-﻿  Renderer.cpp
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(22,5): error C2065: '_frameIndex': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(169,28): error C2065: 'ConstBufferData': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(261,1): error C2065: 'ConstBufferData': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(261,17): error C2146: 構文エラー: ';' が、識別子 'triCB' の前に必要です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(261,17): error C2065: 'triCB': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(262,1): error C2065: 'triCB': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(263,26): error C2065: 'triCB': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(263,40): error C2065: 'triCB': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(286,5): error C2065: '_frameIndex': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(295,57): error C2065: '_frameIndex': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(303,16): error C2065: '_frameIndex': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(329,9): error C2065: 'ConstBufferData': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(329,25): error C2146: 構文エラー: ';' が、識別子 'cb' の前に必要です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(329,25): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(330,9): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(347,13): error C2065: 'ConstBufferData': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(347,29): error C2146: 構文エラー: ';' が、識別子 'cb' の前に必要です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(347,29): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(348,13): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(349,36): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(349,47): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(375,62): error C2065: '_frameIndex': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(461,5): error C2065: 'ConstBufferData': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(461,21): error C2146: 構文エラー: ';' が、識別子 'cb' の前に必要です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(461,21): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(462,5): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(463,26): error C2065: 'cb': 定義されていない識別子です。
-C:\Users\ktc\Desktop\124\DIRECTX12 1\DIRECTX12 1\Renderer.cpp(463,37): error C2065: 'cb': 定義されていない識別子です。
-  main.cpp
+﻿  main.cpp
+  Renderer.cpp
   コードを生成中...
+  LINK : 前回のインクリメンタル リンクで C:\Users\ktc\Desktop\131\DIRECTX12 1\x64\Debug\DIRECTX12 1.exe が見つからなかったか、ビルドされませんでした。フル リンクを行います。
+  DIRECTX12 1.vcxproj -> C:\Users\ktc\Desktop\131\DIRECTX12 1\x64\Debug\DIRECTX12 1.exe

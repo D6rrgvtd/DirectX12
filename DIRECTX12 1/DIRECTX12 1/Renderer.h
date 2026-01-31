@@ -11,7 +11,10 @@ struct Bullet
     DirectX::XMFLOAT2 vel;
     float radius = 0.03f;
 };
-
+struct ConstBufferData
+{
+    DirectX::XMMATRIX mat;
+};
 class Renderer {
 public:
     Renderer(
@@ -62,5 +65,6 @@ private:
 
     ID3D12Resource* _rectCB = nullptr;
     UINT8* _rectCBData = nullptr;
+    UINT _frameIndex = 0;
     
 };
